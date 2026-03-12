@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R3DP: Real-Time 3D-Aware Policy for Embodied Manipulation</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="container">
+            <h1 class="title">R3DP: Real-Time 3D-Aware Policy for Embodied Manipulation</h1>
+            <p class="venue">ECCV 2026</p>
+
+            <!-- Authors - Replace placeholders with actual names -->
+            <div class="authors">
+                <span class="author"><a href="[AUTHOR1_URL]">[Author 1]</a><sup>1*</sup></span>,
+                <span class="author"><a href="[AUTHOR2_URL]">[Author 2]</a><sup>1*</sup></span>,
+                <span class="author"><a href="[AUTHOR3_URL]">[Author 3]</a><sup>2</sup></span>,
+                <span class="author"><a href="[AUTHOR4_URL]">[Author 4]</a><sup>1,2&dagger;</sup></span>
+            </div>
+
+            <!-- Affiliations - Replace placeholders -->
+            <div class="affiliations">
+                <span class="affiliation"><sup>1</sup>[Institution 1]</span>
+                <span class="affiliation"><sup>2</sup>[Institution 2]</span>
+            </div>
+            <p class="author-note"><sup>*</sup>Equal Contribution &nbsp; <sup>&dagger;</sup>Corresponding Author</p>
+
+            <!-- Resource Links -->
+            <div class="links">
+                <a href="[ARXIV_LINK]" class="btn" target="_blank">
+                    <i class="fa-solid fa-file-pdf"></i> Paper
+                </a>
+                <a href="[GITHUB_LINK]" class="btn" target="_blank">
+                    <i class="fa-brands fa-github"></i> Code
+                </a>
+                <!-- Uncomment when video is available
+                <a href="[VIDEO_LINK]" class="btn" target="_blank">
+                    <i class="fa-brands fa-youtube"></i> Video
+                </a>
+                -->
+                <!-- Uncomment if you have a dataset link
+                <a href="[DATASET_LINK]" class="btn" target="_blank">
+                    <i class="fa-solid fa-database"></i> Dataset
+                </a>
+                -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Teaser Figure -->
+    <section class="teaser">
+        <div class="container">
+            <img src="images/teaser.png" alt="R3DP Overview" class="teaser-img">
+            <p class="caption">
+                <b>Key modules and performance of R3DP.</b> Our framework explicitly integrates 3D priors from large-scale foundation models (e.g., VGGT) via an asynchronous fast-slow collaboration mechanism. Overall, R3DP achieves real-time, 3D-aware inference, significantly improving both manipulation success rates and processing frequency.
+            </p>
+        </div>
+    </section>
+
+    <!-- Abstract Section -->
+    <section class="abstract">
+        <div class="container">
+            <h2>Abstract</h2>
+            <p>
+                Embodied manipulation requires accurate 3D understanding of objects and their spatial relations to plan and execute contact-rich actions. While large-scale 3D foundation models provide strong priors, their computational cost incurs prohibitive latency for real-time control. We propose <b>Real-time 3D-aware Policy (R3DP)</b>, which integrates powerful 3D priors into manipulation policies without sacrificing real-time performance.
+            </p>
+            <p>
+                A core innovation of R3DP is the <b>asynchronous fast-slow collaboration module</b>, which sophisticatedly integrates large-scale 3D model's priors into the policy without compromising real-time performance. The system queries the pre-trained slow system (VGGT) only on sparse keyframes, while simultaneously employing a lightweight <b>Temporal Feature Prediction Network (TFPNet)</b> to predict features for all intermediate frames. Additionally, we introduce a <b>Multi-View Feature Fuser (MVFF)</b> that aggregates features across views by explicitly incorporating camera intrinsics and extrinsics.
+            </p>
+            <p>
+                R3DP offers a plug-and-play solution for integrating 3D foundation models into real-time inference systems. R3DP effectively harnesses large-scale 3D priors to achieve superior results, <b>outperforming single-view and multi-view DP by 32.9% and 51.4%</b> in average success rates. Furthermore, by decoupling heavy 3D understanding from policy execution, R3DP achieves a <b>44.8% reduction in inference time</b> compared to a naive DP+VGGT integration.
+            </p>
+        </div>
+    </section>
+
+    <!-- Method Section -->
+    <section class="method">
+        <div class="container">
+            <h2>Method</h2>
+
+            <!-- Architecture Overview -->
+            <div class="method-figure">
+                <img src="images/architecture.png" alt="R3DP Architecture">
+                <p class="caption">
+                    <b>Overview of the R3DP architecture.</b> R3DP serves as a 3D-aware perception module that seamlessly replaces visual encoders in existing imitation learning frameworks. Within the AFSC module, sparse keyframes are processed by a 3D foundation model (VGGT), while intermediate frames are handled by our TFPNet for real-time temporal reasoning. MVFF module leverages cross-attention with PRoPE to fuse 2D-3D features into consistent multi-view representations for control.
+                </p>
+            </div>
+
+            <!-- Key Components -->
+            <div class="components">
+                <div class="component-card">
+                    <h3><i class="fa-solid fa-arrows-spin"></i> Asynchronous Fast-Slow Collaboration (AFSC)</h3>
+                    <p>
+                        AFSC treats a large 3D vision foundation model as the <b>slow system</b> that takes current multi-view RGB images every &tau; inferences, computing high-fidelity Slow 3D-aware Features (S3DF). Meanwhile, a lightweight <b>fast system</b> (TFPNet) propagates these features to every intermediate frame using historical context to predict Real-time 3D-aware Features (R3DF).
+                    </p>
+                </div>
+
+                <div class="component-card">
+                    <h3><i class="fa-solid fa-clock-rotate-left"></i> Temporal Feature Prediction Network (TFPNet)</h3>
+                    <p>
+                        TFPNet is a lightweight network that leverages historical-frame 3D-aware features to predict current-frame features in real-time. It uses a DINOv2-S backbone with 4 Alternating-Attention Transformer blocks, followed by cross-attention to inject temporal priors from previous frames.
+                    </p>
+                </div>
+
+                <div class="component-card">
+                    <h3><i class="fa-solid fa-layer-group"></i> Multi-View Feature Fuser (MVFF)</h3>
+                    <p>
+                        MVFF explicitly leverages camera intrinsics and extrinsics for geometry-aware cross-view feature alignment. Using Projective Positional Encoding (PRoPE), it achieves consistent 3D-aware representation across viewpoints while respecting camera geometry.
+                    </p>
+                </div>
+            </div>
+
+            <!-- TFPNet Figure -->
+            <div class="method-figure">
+                <img src="images/tfpnet.png" alt="TFPNet Architecture">
+                <p class="caption">
+                    <b>Architecture and training objective of TFPNet.</b> For clarity, we show the unrolled structure for the first two timesteps; in practice, the network is trained over a sequence of four timesteps. TFPNet leverages historical information to augment current observations, enabling 3D-aware control with real-time inference efficiency.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results">
+        <div class="container">
+            <h2>Experiments</h2>
+
+            <h3>Simulation Results on RoboTwin Benchmark</h3>
+            <div class="table-wrapper">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>DP-single</th>
+                            <th>DP-multi</th>
+                            <th>DP3</th>
+                            <th>&pi;<sub>0</sub></th>
+                            <th>R3DP (&tau;=4)</th>
+                            <th>R3DP (&tau;=8)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Block Hammer Beat</td>
+                            <td>0%</td>
+                            <td>0%</td>
+                            <td>49%</td>
+                            <td>47%</td>
+                            <td><b>77%</b></td>
+                            <td><b>77%</b></td>
+                        </tr>
+                        <tr>
+                            <td>Block Handover</td>
+                            <td>1%</td>
+                            <td>2%</td>
+                            <td>48%</td>
+                            <td>71%</td>
+                            <td><b>95%</b></td>
+                            <td>93%</td>
+                        </tr>
+                        <tr>
+                            <td>Blocks Stack Easy</td>
+                            <td>6%</td>
+                            <td>7%</td>
+                            <td>26%</td>
+                            <td><b>79%</b></td>
+                            <td>69%</td>
+                            <td>62%</td>
+                        </tr>
+                        <tr>
+                            <td>Shoe Place</td>
+                            <td>45%</td>
+                            <td>19%</td>
+                            <td>49%</td>
+                            <td>71%</td>
+                            <td><b>72%</b></td>
+                            <td>68%</td>
+                        </tr>
+                        <tr>
+                            <td>Put Apple Cabinet</td>
+                            <td>92%</td>
+                            <td>38%</td>
+                            <td>98%</td>
+                            <td>64%</td>
+                            <td><b>100%</b></td>
+                            <td>98%</td>
+                        </tr>
+                        <tr>
+                            <td>Tube Insert</td>
+                            <td>92%</td>
+                            <td>64%</td>
+                            <td><b>97%</b></td>
+                            <td>68%</td>
+                            <td><b>97%</b></td>
+                            <td><b>97%</b></td>
+                        </tr>
+                        <tr class="average-row">
+                            <td><b>Average</b></td>
+                            <td>36.1%</td>
+                            <td>17.6%</td>
+                            <td>57.6%</td>
+                            <td>59.9%</td>
+                            <td><b>69.0%</b></td>
+                            <td>65.7%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Real-World Results</h3>
+            <div class="table-wrapper">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>DP</th>
+                            <th>DP3</th>
+                            <th>DP+V+M</th>
+                            <th>R3DP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Place Shoe</td>
+                            <td>46.7%</td>
+                            <td>50.0%</td>
+                            <td>76.7%</td>
+                            <td><b>86.7%</b></td>
+                        </tr>
+                        <tr>
+                            <td>Place Glass Cup</td>
+                            <td>23.3%</td>
+                            <td>56.7%</td>
+                            <td>76.7%</td>
+                            <td><b>83.3%</b></td>
+                        </tr>
+                        <tr>
+                            <td>Pick Peach</td>
+                            <td>20%</td>
+                            <td>30%</td>
+                            <td>46.7%</td>
+                            <td><b>50%</b></td>
+                        </tr>
+                        <tr>
+                            <td>Stack Bowls</td>
+                            <td>33.3%</td>
+                            <td>56.7%</td>
+                            <td><b>66.7%</b></td>
+                            <td><b>66.7%</b></td>
+                        </tr>
+                        <tr class="average-row">
+                            <td><b>Average</b></td>
+                            <td>30.8%</td>
+                            <td>48.4%</td>
+                            <td>66.7%</td>
+                            <td><b>71.7%</b></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Inference Latency Comparison</h3>
+            <div class="table-wrapper">
+                <table class="results-table latency-table">
+                    <thead>
+                        <tr>
+                            <th>Latency (ms)</th>
+                            <th>DP+VGGT</th>
+                            <th>DP+VGGT+MVFF</th>
+                            <th>R3DP (&tau;=4)</th>
+                            <th>R3DP (&tau;=8)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Obs. Encoder</td>
+                            <td>73.1</td>
+                            <td>78.3</td>
+                            <td>50.5 <span class="improvement">(&darr;30.9%)</span></td>
+                            <td><b>40.3</b> <span class="improvement">(&darr;44.8%)</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Depth Visualization -->
+            <h3>Depth Map Visualization</h3>
+            <div class="depth-visualization">
+                <div class="depth-grid">
+                    <div class="depth-section">
+                        <h4>Simulation (Put Apple Cabinet)</h4>
+                        <div class="depth-row">
+                            <div class="depth-col">
+                                <span class="view-label">Head</span>
+                            </div>
+                            <div class="depth-col">
+                                <img src="images/depth_sim/img_b6_v0.png" alt="RGB Head">
+                                <span>RGB</span>
+                            </div>
+                            <div class="depth-col">
+                                <img src="images/depth_sim/depth_vggt_b6_v0_moge.png" alt="VGGT Head">
+                                <span>VGGT</span>
+                            </div>
+                            <div class="depth-col">
+                                <img src="images/depth_sim/depth_b6_v0_moge.png" alt="Ours Head">
+                                <span>Ours</span>
+                            </div>
+                        </div>
+                        <div class="depth-row">
+                            <div class="depth-col">
+                                <span class="view-label">Front</span>
+                            </div>
+                            <div class="depth-col">
+                                <img src="images/depth_sim/img_b6_v1.png" alt="RGB Front">
+                                <span>RGB</span>
+                            </div>
+                            <div class="depth-col">
+                                <img src="images/depth_sim/depth_vggt_b6_v1_moge.png" alt="VGGT Front">
+                                <span>VGGT</span>
+                            </div>
+                            <div class="depth-col">
+                                <img src="images/depth_sim/depth_b6_v1_moge.png" alt="Ours Front">
+                                <span>Ours</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="depth-section">
+                        <h4>Real-World (Stack Bowls)</h4>
+                        <div class="depth-row">
+                            <div class="depth-col">
+                                <span class="view-label">Head</span>
+                            </div>
+                            <div class="depth-col">
+                                <img src="images/depth_real/stack_bowls_view0_cropped.png" alt="RGB Head">
+                                <span>RGB</span>
+                            </div>
+                            <div class="depth-col">
+                                <img src="images/depth_real/stack_bowls_vggt_view0_cropped.png" alt="VGGT Head">
+                                <span>VGGT</span>
+                            </div>
+                            <div class="depth-col">
+                                <img src="images/depth_real/stack_bowls_transfer_view0_cropped.png" alt="Ours Head">
+                                <span>Ours</span>
+                            </div>
+                        </div>
+                        <div class="depth-row">
+                            <div class="depth-col">
+                                <span class="view-label">Front</span>
+                            </div>
+                            <div class="depth-col">
+                                <img src="images/depth_real/stack_bowls_cropped.png" alt="RGB Front">
+                                <span>RGB</span>
+                            </div>
+                            <div class="depth-col">
+                                <img src="images/depth_real/stack_bowls_vggt_cropped.png" alt="VGGT Front">
+                                <span>VGGT</span>
+                            </div>
+                            <div class="depth-col">
+                                <img src="images/depth_real/stack_bowls_transfer_cropped.png" alt="Ours Front">
+                                <span>Ours</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p class="caption">
+                    <b>Visualization of depth maps</b> decoded from VGGT features and from our TFPNet-predicted features passed through VGGT's depth decoder. The close visual agreement indicates that our lightweight TFPNet effectively captures information generated by 3D foundation model in both simulation and real-world experiments.
+                </p>
+            </div>
+
+            <!-- Real-world Setup -->
+            <h3>Real-World Experimental Setup</h3>
+            <div class="real-world-visualization">
+                <div class="real-world-grid">
+                    <div class="real-world-task">
+                        <img src="images/real_world/real_shoe_place_1.jpg" alt="Place Shoe">
+                        <img src="images/real_world/pcd_shoe_place.png" alt="Place Shoe Point Cloud">
+                        <span>Place Shoe</span>
+                    </div>
+                    <div class="real-world-task">
+                        <img src="images/real_world/real_place_cup_1.jpg" alt="Place Glass Cup">
+                        <img src="images/real_world/pcd_place_cup.png" alt="Place Glass Cup Point Cloud">
+                        <span>Place Glass Cup</span>
+                    </div>
+                    <div class="real-world-task">
+                        <img src="images/real_world/real_pick_peach.jpg" alt="Pick Peach">
+                        <img src="images/real_world/pcd_pick_peach.jpg" alt="Pick Peach Point Cloud">
+                        <span>Pick Peach</span>
+                    </div>
+                    <div class="real-world-task">
+                        <img src="images/real_world/real_stack_bowls.jpg" alt="Stack Bowls">
+                        <img src="images/real_world/pcd_stack_bowls.jpg" alt="Stack Bowls Point Cloud">
+                        <span>Stack Bowls</span>
+                    </div>
+                </div>
+                <p class="caption">
+                    <b>Real-world experimental platforms and point cloud inputs.</b> We evaluate our method on the ArmBot-Y1 bimanual robot for tasks including Place Shoe and Place Glass Cup, and a single-arm robot for Pick Peach and Stack Bowls. Both platforms are equipped with dual RealSense D435 cameras to generate the ground-truth point clouds used by the DP3 baseline.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Section (Commented - Uncomment when videos are available) -->
+    <!--
+    <section class="videos">
+        <div class="container">
+            <h2>Demo Videos</h2>
+
+            <div class="video-grid">
+                <div class="video-item">
+                    <h3>Simulation Demos</h3>
+                    <video controls>
+                        <source src="[VIDEO_URL_SIMULATION]" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+
+                <div class="video-item">
+                    <h3>Real-World Demos</h3>
+                    <video controls>
+                        <source src="[VIDEO_URL_REALWORLD]" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <div class="video-item full-width">
+                <h3>YouTube Video</h3>
+                <div class="video-container">
+                    <iframe src="[YOUTUBE_EMBED_URL]"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+    -->
+
+    <!-- Citation Section -->
+    <section class="citation">
+        <div class="container">
+            <h2>Citation</h2>
+            <p>If you find our work useful, please consider citing:</p>
+            <div class="bibtex">
+                <button class="copy-btn" onclick="copyBibtex()">
+                    <i class="fa-regular fa-copy"></i> Copy
+                </button>
+<pre id="bibtex-content">@inproceedings{r3dp2026,
+  title={R3DP: Real-Time 3D-Aware Policy for Embodied Manipulation},
+  author={[AUTHORS]},
+  booktitle={European Conference on Computer Vision (ECCV)},
+  year={2026}
+}</pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>
+                Website template inspired by <a href="https://nerfies.github.io/" target="_blank">Nerfies</a> and
+                <a href="https://zhutengjie.github.io/CLOT.github.io/" target="_blank">CLOT</a>.
+            </p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
