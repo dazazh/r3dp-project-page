@@ -13,7 +13,6 @@
     <header class="header">
         <div class="container">
             <h1 class="title">R3DP: Real-Time 3D-Aware Policy for Embodied Manipulation</h1>
-            <p class="venue">ECCV 2026</p>
 
             <!-- Authors - Replace placeholders with actual names -->
             <div class="authors">
@@ -111,6 +110,13 @@
                     <h3><i class="fa-solid fa-layer-group"></i> Multi-View Feature Fuser (MVFF)</h3>
                     <p>
                         MVFF explicitly leverages camera intrinsics and extrinsics for geometry-aware cross-view feature alignment. Using Projective Positional Encoding (PRoPE), it achieves consistent 3D-aware representation across viewpoints while respecting camera geometry.
+                    </p>
+                </div>
+
+                <div class="component-card">
+                    <h3><i class="fa-solid fa-chart-line"></i> Performance</h3>
+                    <p>
+                        R3DP achieves <b>32.9% higher success rate</b> than single-view DP and <b>51.4% higher</b> than multi-view DP in simulation benchmarks. In real-world experiments, it outperforms baselines by a significant margin. Furthermore, R3DP reduces observation encoding latency by <b>44.8%</b> compared to naive DP+VGGT integration, enabling real-time control.
                     </p>
                 </div>
             </div>
@@ -373,7 +379,7 @@
             </div>
 
             <!-- Real-world Setup -->
-            <h3>Real-World Experimental Setup</h3>
+            <h3>Real-World Experiments</h3>
             <div class="real-world-visualization">
                 <div class="real-world-grid">
                     <div class="real-world-task">
@@ -451,11 +457,11 @@
                 <button class="copy-btn" onclick="copyBibtex()">
                     <i class="fa-regular fa-copy"></i> Copy
                 </button>
-<pre id="bibtex-content">@inproceedings{r3dp2026,
+<pre id="bibtex-content">@article{r3dp2025,
   title={R3DP: Real-Time 3D-Aware Policy for Embodied Manipulation},
   author={[AUTHORS]},
-  booktitle={European Conference on Computer Vision (ECCV)},
-  year={2026}
+  journal={arXiv preprint},
+  year={2025}
 }</pre>
             </div>
         </div>
@@ -465,8 +471,7 @@
     <footer class="footer">
         <div class="container">
             <p>
-                Website template inspired by <a href="https://nerfies.github.io/" target="_blank">Nerfies</a> and
-                <a href="https://zhutengjie.github.io/CLOT.github.io/" target="_blank">CLOT</a>.
+                Website template inspired by <a href="https://nerfies.github.io/" target="_blank">Nerfies</a>.
             </p>
         </div>
     </footer>
